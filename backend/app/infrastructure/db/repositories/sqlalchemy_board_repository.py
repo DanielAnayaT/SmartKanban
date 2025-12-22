@@ -1,11 +1,11 @@
 from app.domain.models.board import Board
 from app.domain.repositories.board_repository import BoardRepository
 from app.infrastructure.db.entities.board_entity import BoardEntity
-from app.infrastructure.db.session import SessionLocal
+from sqlalchemy.orm import Session
 
 class SQLAlchemyBoardRepository(BoardRepository):
-    def __init__(self):
-        self.db = SessionLocal()
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, board: Board) -> Board:
         entity = BoardEntity(
@@ -33,3 +33,11 @@ class SQLAlchemyBoardRepository(BoardRepository):
         if entity:
             self.db.delete(entity)
             self.db.commit()
+
+    def update(self, board: Board) -> Board:
+        entity = self.db.query(BoardEntity).filter_by(id=board.id).first()
+        if not entity:
+            return board  
+        entity.name = board.name
+        self.db.commit()
+        return board

@@ -1,11 +1,11 @@
 from app.domain.models.project import Project
 from app.domain.repositories.project_repository import ProjectRepository
 from app.infrastructure.db.entities.project_entity import ProjectEntity
-from app.infrastructure.db.session import SessionLocal
+from sqlalchemy.orm import Session
 
 class SQLAlchemyProjectRepository(ProjectRepository):
-    def __init__(self):
-        self.db = SessionLocal()
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, project: Project) -> Project:
         entity = ProjectEntity(
@@ -50,3 +50,20 @@ class SQLAlchemyProjectRepository(ProjectRepository):
         if entity:
             self.db.delete(entity)
             self.db.commit()
+
+    def update(self, project: Project) -> Project:
+        entity = self.db.query(ProjectEntity).filter_by(id=project.id).first()
+        if not entity:
+            return project  
+        entity.name = project.name
+        entity.description = project.description
+        self.db.commit()
+        self.db.refresh(entity)
+        return Project(
+            id=entity.id,
+            name=entity.name,
+            description=entity.description,
+            owner_id=entity.owner_id,
+            created_at=entity.created_at,
+            updated_at=entity.updated_at
+        )

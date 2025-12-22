@@ -20,14 +20,26 @@ class Project:
     @property
     def name(self):
         return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def description(self):
         return self._description
+    
+    @description.setter
+    def description(self, value):
+        self._description = value
 
     @property
     def owner_id(self):
         return self._owner_id
+    
+    @owner_id.setter
+    def owner_id(self, value):
+        self._owner_id = value
 
     @property
     def created_at(self):

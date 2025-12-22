@@ -19,6 +19,10 @@ class Board:
     @property
     def name(self):
         return self._name
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def project_id(self):

@@ -18,3 +18,7 @@ class ListRepository(ABC):
     @abstractmethod
     def delete(self, list_id: int) -> None:
         pass
+
+    @abstractmethod
+    def update(self, list_: List) -> List:
+        pass

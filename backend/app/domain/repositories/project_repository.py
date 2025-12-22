@@ -18,3 +18,7 @@ class ProjectRepository(ABC):
     @abstractmethod
     def delete(self, project_id: int):
         pass
+
+    @abstractmethod
+    def update(self, project: Project) -> Project:
+        pass
