@@ -2,12 +2,12 @@ from sqlalchemy.orm import Session
 from app.domain.models.list import List
 from app.domain.repositories.list_repository import ListRepository
 from app.infrastructure.db.entities.list_entity import ListORM
-from app.infrastructure.db.session import SessionLocal
+
 
 class SQLAlchemyListRepository(ListRepository):
 
-    def __init__(self):
-        self.db = SessionLocal()
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, list_: List) -> List:
         orm = ListORM(name=list_.name,board_id=list_.board_id)
@@ -43,3 +43,11 @@ class SQLAlchemyListRepository(ListRepository):
         if orm:
             self.db.delete(orm)
             self.db.commit()
+
+    def update(self, list_: List) -> List:
+        orm = self.db.query(ListORM).filter(ListORM.id == list_.id).first()
+        if not orm:
+            return list_  
+        orm.name = list_.name
+        self.db.commit()
+        return list_

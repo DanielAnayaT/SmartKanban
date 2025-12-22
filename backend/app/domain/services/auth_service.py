@@ -20,11 +20,17 @@ class AuthService:
         user = self.user_repo.get_by_email(email)
         if not user or not verify_password(password, user.hashed_password):
             return None
-        token = create_access_token({"sub": user.email})
+        token = create_access_token({"sub": user.id})
         return token
 
     def get_user_by_email(self, email: str):
         user = self.user_repo.get_by_email(email)
         if not user:
             raise ValueError(f"Usuario con email '{email}' no existe")
+        return user
+    
+    def get_user_by_id(self, user_id: int):
+        user = self.user_repo.get_by_id(user_id)
+        if not user:
+            raise ValueError(f"Usuario con id '{user_id}' no existe")
         return user

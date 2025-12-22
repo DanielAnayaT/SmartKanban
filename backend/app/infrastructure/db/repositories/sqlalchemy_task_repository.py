@@ -2,12 +2,12 @@ from sqlalchemy.orm import Session
 from app.domain.models.task import Task
 from app.domain.repositories.task_repository import TaskRepository
 from app.infrastructure.db.entities.task_entity import TaskORM
-from app.infrastructure.db.session import SessionLocal
+
 
 class SQLAlchemyTaskRepository(TaskRepository):
 
-    def __init__(self):
-        self.db = SessionLocal()
+    def __init__(self, db: Session):
+        self.db = db
 
     def create(self, task: Task) -> Task:
         orm = TaskORM(title=task.title, description=task.description, list_id=task.list_id)
@@ -50,3 +50,12 @@ class SQLAlchemyTaskRepository(TaskRepository):
         if orm:
             self.db.delete(orm)
             self.db.commit()
+
+    def update(self, task: Task) -> Task:
+        orm = self.db.query(TaskORM).filter(TaskORM.id == task.id).first()
+        if not orm:
+            return task  
+        orm.title = task.title
+        orm.description = task.description
+        self.db.commit()
+        return task
