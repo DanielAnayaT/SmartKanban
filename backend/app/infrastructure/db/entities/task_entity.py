@@ -9,5 +9,6 @@ class TaskORM(Base):
     title = Column(String, nullable=False)
     description = Column(Text, nullable=True)
     list_id = Column(Integer, ForeignKey("lists.id", ondelete="CASCADE"), nullable=False)
+    position = Column(Integer, nullable=False, default=0)
 
     list = relationship("ListORM", back_populates="tasks")

@@ -35,7 +35,7 @@ class TaskService:
         )
         return self.task_repo.create(task)
 
-    def get_task(self, task_id: int, current_user_id: int) -> Task:
+    def get_task(self, task_id: int, current_user_id: int = 0) -> Task:
         task = self.task_repo.get_by_id(task_id)
         if not task:
             raise TaskNotFoundError(f"La tarea con id {task_id} no existe")
@@ -50,8 +50,7 @@ class TaskService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ValueError(f"El proyecto asociado al tablero con id {board.id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para acceder a esta tarea")
+        
 
         return task
 
@@ -110,3 +109,6 @@ class TaskService:
         task.title = title
         task.description = description
         return self.task_repo.update(task)
+
+    def reorder_tasks(self, items):
+        self.task_repo.reorder_tasks(items)

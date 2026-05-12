@@ -19,3 +19,10 @@ class ProjectEntity(Base):
     back_populates="project",
     cascade="all, delete-orphan"
 )
+
+    members = relationship(
+    "ProjectMemberEntity",
+    back_populates="project",
+    cascade="all, delete-orphan"
+)
+

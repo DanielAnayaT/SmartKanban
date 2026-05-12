@@ -10,6 +10,12 @@ class TaskOut(BaseModel):
     title: str
     description: str | None
     list_id: int
+    position: int
 
     class Config:
         from_attributes = True
+
+class ReorderTaskItem(BaseModel):
+    id: int
+    position: int
+    list_id: int

@@ -1,10 +1,11 @@
 from app.core.security import get_current_user
 from app.infrastructure.db.repositories.sqlalchemy_board_repository import SQLAlchemyBoardRepository
 from app.infrastructure.db.repositories.sqlalchemy_project_repository import SQLAlchemyProjectRepository
+from app.domain.services import ollama_service
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.schemas.task import TaskCreate, TaskOut
+from app.schemas.task import ReorderTaskItem, TaskCreate, TaskOut
 from app.domain.services.task_service import TaskService
 from app.infrastructure.db.repositories.sqlalchemy_task_repository import SQLAlchemyTaskRepository
 from app.infrastructure.db.repositories.sqlalchemy_list_repository import SQLAlchemyListRepository
@@ -59,3 +60,19 @@ def update_task(task_id: int, task: TaskCreate, current_user= Depends(get_curren
         return task_service.update_task(task_id, task.title, task.description, current_user.id)
     except TaskNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@router.patch("/reorder")
+def reorder_tasks(items: list[ReorderTaskItem], task_service: TaskService = Depends(get_task_service)):
+    task_service.reorder_tasks(items)
+    return {"ok": True}
+
+@router.post("/{task_id}/generate-subtasks")
+def generate_subtasks(task_id: int, task_service: TaskService = Depends(get_task_service)):
+    task = task_service.get_task(task_id)
+
+    subtasks = ollama_service.generate_subtasks(task.title)
+
+    return {
+        "task_id": task_id,
+        "subtasks": subtasks
+    }

@@ -10,15 +10,24 @@ class SQLAlchemyListRepository(ListRepository):
         self.db = db
 
     def create(self, list_: List) -> List:
-        orm = ListORM(name=list_.name,board_id=list_.board_id)
+        existing_count = (
+            self.db.query(ListORM)
+            .filter(ListORM.board_id == list_.board_id)
+            .count()
+        )
+        
+        orm = ListORM(name=list_.name,board_id=list_.board_id, position=existing_count)
         self.db.add(orm)
         self.db.commit()
         self.db.refresh(orm)
 
+        
+
         return List(
             id=orm.id,
             name=orm.name,
-            board_id=orm.board_id
+            board_id=orm.board_id,
+            position=existing_count
         )
 
     def get_by_id(self, list_id: int) -> List | None:
@@ -28,13 +37,14 @@ class SQLAlchemyListRepository(ListRepository):
         return List(
             id=orm.id,
             name=orm.name,
-            board_id=orm.board_id
+            board_id=orm.board_id,
+            position=orm.position
         )
 
     def list_by_board(self, board_id: int) -> list[List]:
-        orms = self.db.query(ListORM).filter(ListORM.board_id == board_id).all()
+        orms = self.db.query(ListORM).filter(ListORM.board_id == board_id).order_by(ListORM.position).all()
         return [
-            List(id=o.id, name=o.name, board_id=o.board_id)
+            List(id=o.id, name=o.name, board_id=o.board_id, position=o.position)
             for o in orms
         ]
 
@@ -51,3 +61,17 @@ class SQLAlchemyListRepository(ListRepository):
         orm.name = list_.name
         self.db.commit()
         return list_
+    
+    def reorder_lists(self, items):
+        for item in items:
+
+            entity = (
+                self.db.query(ListORM)
+                .filter(ListORM.id == item.id)
+                .first()
+            )
+
+            if entity:
+                entity.position = item.position
+
+        self.db.commit()

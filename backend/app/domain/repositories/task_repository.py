@@ -22,3 +22,7 @@ class TaskRepository(ABC):
     @abstractmethod
     def update(self, task: Task) -> Task:
         pass
+
+    @abstractmethod
+    def reorder_tasks(self, items):
+        pass
