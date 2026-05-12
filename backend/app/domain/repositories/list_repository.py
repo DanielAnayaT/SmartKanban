@@ -22,3 +22,7 @@ class ListRepository(ABC):
     @abstractmethod
     def update(self, list_: List) -> List:
         pass
+
+    @abstractmethod
+    def reorder_lists(self, items):
+        pass

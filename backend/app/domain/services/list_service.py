@@ -90,3 +90,6 @@ class ListService:
 
         list_.name = name
         return self.list_repo.update(list_)
+    
+    def reorder_lists(self, items):
+        self.list_repo.reorder_lists(items)

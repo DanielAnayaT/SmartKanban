@@ -14,9 +14,9 @@ class SQLAlchemyProjectRepository(ProjectRepository):
             owner_id=project.owner_id
         )
         self.db.add(entity)
-        self.db.commit()
-        self.db.refresh(entity)
+        self.db.flush()
         project.id = entity.id
+        self.db.commit()
         return project
 
     def get_by_id(self, project_id: int) -> Project | None:

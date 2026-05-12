@@ -1,9 +1,11 @@
 class Task:
-    def __init__(self, id: int | None, title: str, description: str | None, list_id: int):
+    def __init__(self, id: int | None, title: str, description: str | None, list_id: int, position: int = 0):
         self.id = id
         self.title = title
         self.description = description
         self.list_id = list_id
+        self.position = position
+
 
     @property
     def id(self) -> int | None:
@@ -36,3 +38,11 @@ class Task:
     @list_id.setter
     def list_id(self, value: int) -> None:
         self._list_id = value   
+
+    @property
+    def position(self) -> int:
+        return self._position
+    
+    @position.setter
+    def position(self, value: int) -> None:
+        self._position = value

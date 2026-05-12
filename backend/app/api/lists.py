@@ -3,7 +3,7 @@ from app.infrastructure.db.repositories.sqlalchemy_project_repository import SQL
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.schemas.list import ListCreate, ListOut
+from app.schemas.list import ListCreate, ListOut, ReorderListItem
 from app.domain.services.list_service import ListService
 from app.infrastructure.db.repositories.sqlalchemy_list_repository import SQLAlchemyListRepository
 from app.infrastructure.db.repositories.sqlalchemy_board_repository import SQLAlchemyBoardRepository
@@ -47,3 +47,8 @@ def update_list(list_id: int, list_: ListCreate, current_user= Depends(get_curre
         return list_service.update_list(list_id, list_.name, current_user.id)
     except ListNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+@router.patch("/reorder")
+def reorder_lists(items: list[ReorderListItem], list_service: ListService = Depends(get_list_service)):
+    list_service.reorder_lists(items)
+    return {"message": "ok"}
