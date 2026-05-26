@@ -59,3 +59,13 @@ def update_project(project_id: int, project: ProjectCreate, current_user= Depend
         return project_service.update_project(project_id, project.name, project.description, current_user.id)
     except ProjectNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+@router.post("/{project_id}/invite")
+def invite_member(project_id: int, email: str, current_user= Depends(get_current_user), project_service: ProjectService = Depends(get_project_service)):
+    try:
+        project_service.invite_member(project_id, email, current_user.id)
+    except ProjectNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"detail": "Invitación enviada"}

@@ -7,6 +7,7 @@ from app.api.boards import router as boards_router
 from app.api.lists import router as lists_router
 from app.api.tasks import router as tasks_router
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.invitations import router as invitation_router
 
 # Crear tablas
 Base.metadata.create_all(bind=engine)
@@ -31,3 +32,4 @@ app.include_router(projects_router, prefix="/projects")
 app.include_router(boards_router, prefix="/boards")
 app.include_router(lists_router, prefix="/lists")
 app.include_router(tasks_router, prefix="/tasks")
+app.include_router(invitation_router, prefix="/invitations")

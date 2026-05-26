@@ -24,8 +24,8 @@ class TaskService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ValueError(f"El proyecto asociado al tablero con id {board.id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para crear tareas en esta lista")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para crear tareas en esta lista")
 
         task = Task(
             id=None,
@@ -65,8 +65,8 @@ class TaskService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ValueError(f"El proyecto asociado al tablero con id {board.id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para ver las tareas de esta lista")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para ver las tareas de esta lista")
 
         return self.task_repo.list_by_list(list_id)
 
@@ -85,8 +85,8 @@ class TaskService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ValueError(f"El proyecto asociado al tablero con id {board.id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para eliminar esta tarea")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para eliminar esta tarea")
 
         self.task_repo.delete(task_id)
 
@@ -103,8 +103,8 @@ class TaskService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ValueError(f"El proyecto asociado al tablero con id {board.id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para actualizar esta tarea")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para actualizar esta tarea")
 
         task.title = title
         task.description = description

@@ -275,6 +275,22 @@ const styles = {
     fontSize: "14px",
     color: "#6b7280",
   } as React.CSSProperties,
+
+  projectHeaderTop: {
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+inviteButton: {
+  backgroundColor: "#2563eb",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  padding: "10px 16px",
+  cursor: "pointer",
+  fontWeight: 600,
+},
 };
 
 interface Task {
@@ -308,10 +324,19 @@ const Project = () => {
   const [hoveredTask, setHoveredTask] = useState<number | null>(null);
 
   const [showAiModal, setShowAiModal] = useState(false);
-  const [generatedSubtasks, setGeneratedSubtasks] = useState<string[]>([]);
+  const [generatedSubtasks, setGeneratedSubtasks] = useState<
+  {
+    title: string;
+    description: string;
+  }[]
+>([]);
   const [loadingAi, setLoadingAi] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const [selectedListId, setSelectedListId] = useState<number | null>(null);
+
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   const [board, setBoard] = useState<Board | null>(null);
 
@@ -434,7 +459,52 @@ const Project = () => {
     };
 
     fetchBoard();
+
+    const interval = setInterval(() => {
+    fetchBoard();
+  }, 5000);
+
+  return () => clearInterval(interval);
 }, [projectId]);
+
+const inviteUser = async () => {
+  if (!inviteEmail.trim() || !projectId) return;
+
+  try {
+    setInviteLoading(true);
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:8000/invitations/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        project_id: Number(projectId),
+        email: inviteEmail,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.detail || "Error inviting user");
+      return;
+    }
+
+    alert("Invitation sent!");
+
+    setInviteEmail("");
+    setShowInviteModal(false);
+
+  } catch (err) {
+    console.error("Error inviting user", err);
+  } finally {
+    setInviteLoading(false);
+  }
+};
 
   // Task Management
   const addTask = async (listId: number) => {
@@ -561,8 +631,8 @@ const Project = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            title: subtask,
-            description: "",
+            title: subtask.title,
+            description: subtask.description,
             list_id: selectedListId,
           }),
         }
@@ -846,8 +916,21 @@ const Project = () => {
       <div style={styles.mainContent}>
         {/* Project Header */}
         <div style={styles.projectHeader}>
-          <h1 style={styles.projectTitle}>{board.title}</h1>
-          <p style={styles.projectDescription}>{board.description}</p>
+          <div style={styles.projectHeaderTop}>
+  <div>
+    <h1 style={styles.projectTitle}>{board.title}</h1>
+    <p style={styles.projectDescription}>
+      {board.description}
+    </p>
+  </div>
+
+  <button
+    style={styles.inviteButton}
+    onClick={() => setShowInviteModal(true)}
+  >
+    Invite User
+  </button>
+</div>
         </div>
 
         {/* Kanban Board */}
@@ -888,45 +971,82 @@ const Project = () => {
                 onDrop={(e) => handleTaskDrop(e, list.id)}
               >
                 {list.tasks.map((task) => (
-                  <div
-                    key={task.id}
-                    style={{
-                      ...styles.task,
-                      ...(hoveredTask === task.id ? styles.taskHovered : {}),
-                    }}
-                    draggable
-                    onDragStart={(e) => { e.stopPropagation(); handleTaskDragStart(e, task.id, list.id); }}
-                    onDragEnd={handleTaskDragEnd}
-                    onMouseEnter={() => setHoveredTask(task.id)}
-                    onMouseLeave={() => setHoveredTask(null)}
-                  >
-                    <div style={styles.taskContent}>
-                      <p style={styles.taskText}>{task.title}</p>
-                      <div style={styles.taskActions}>
-                        <button
-                          style={styles.taskButton}
-                          onClick={() =>
-                            generateSubtasks(task.id, list.id)
-                          }
-                        >
-                          ✨
-                        </button>
-                        <button
-                          style={styles.taskButton}
-                          onMouseEnter={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color = "#ef4444";
-                          }}
-                          onMouseLeave={(e) => {
-                            (e.currentTarget as HTMLButtonElement).style.color = "#6b7280";
-                          }}
-                          onClick={() => deleteTask(task.id, list.id)}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+  <div
+    key={task.id}
+    style={{
+      ...styles.task,
+      ...(hoveredTask === task.id
+        ? styles.taskHovered
+        : {}),
+    }}
+    draggable
+    onDragStart={(e) => {
+      e.stopPropagation();
+      handleTaskDragStart(e, task.id, list.id);
+    }}
+    onDragEnd={handleTaskDragEnd}
+    onMouseEnter={() => setHoveredTask(task.id)}
+    onMouseLeave={() => setHoveredTask(null)}
+  >
+    <div style={styles.taskContent}>
+      
+      {/* LEFT SIDE */}
+      <div>
+        <p style={styles.taskText}>
+          {task.title}
+        </p>
+
+        {task.description && (
+          <div
+            style={{
+              marginTop: "6px",
+              fontSize: "12px",
+              color: "#6b7280",
+              background: "#f3f4f6",
+              padding: "2px 8px",
+              borderRadius: "999px",
+              display: "inline-block",
+            }}
+          >
+            ⏱ {task.description}
+          </div>
+        )}
+      </div>
+
+      {/* ACTIONS */}
+      <div style={styles.taskActions}>
+        <button
+          style={styles.taskButton}
+          onClick={() =>
+            generateSubtasks(task.id, list.id)
+          }
+        >
+          ✨
+        </button>
+
+        <button
+          style={styles.taskButton}
+          onMouseEnter={(e) => {
+            (
+              e.currentTarget as HTMLButtonElement
+            ).style.color = "#ef4444";
+          }}
+          onMouseLeave={(e) => {
+            (
+              e.currentTarget as HTMLButtonElement
+            ).style.color = "#6b7280";
+          }}
+          onClick={() =>
+            deleteTask(task.id, list.id)
+          }
+        >
+          ✕
+        </button>
+      </div>
+
+    </div>
+  </div>
+))}
 
                 {/* Add Task Button */}
                 <button
@@ -1068,10 +1188,7 @@ const Project = () => {
       )}
 
       {showAiModal && (
-  <div
-    style={styles.modal}
-    onClick={() => setShowAiModal(false)}
-  >
+  <div style={styles.modal} onClick={() => setShowAiModal(false)}>
     <div
       style={styles.modalContent}
       onClick={(e) => e.stopPropagation()}
@@ -1100,7 +1217,20 @@ const Project = () => {
                 fontWeight: "500",
               }}
             >
-              {subtask}
+              <div>{subtask.title}</div>
+
+              {subtask.description && (
+                <div
+                  style={{
+                    marginTop: "6px",
+                    fontSize: "12px",
+                    color: "#6b7280",
+                    fontWeight: "400",
+                  }}
+                >
+                  ⏱ {subtask.description}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1119,6 +1249,47 @@ const Project = () => {
           onClick={createAiSubtasks}
         >
           Add All
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{showInviteModal && (
+  <div
+    style={styles.modal}
+    onClick={() => setShowInviteModal(false)}
+  >
+    <div
+      style={styles.modalContent}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2 style={styles.modalTitle}>
+        Invite User
+      </h2>
+
+      <input
+        type="email"
+        placeholder="User email..."
+        value={inviteEmail}
+        onChange={(e) => setInviteEmail(e.target.value)}
+        style={styles.input}
+      />
+
+      <div style={styles.modalActions}>
+        <button
+          style={styles.secondaryButton}
+          onClick={() => setShowInviteModal(false)}
+        >
+          Cancel
+        </button>
+
+        <button
+          style={styles.primaryButton}
+          onClick={inviteUser}
+          disabled={inviteLoading}
+        >
+          {inviteLoading ? "Sending..." : "Send Invite"}
         </button>
       </div>
     </div>

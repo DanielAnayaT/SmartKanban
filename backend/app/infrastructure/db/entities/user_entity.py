@@ -10,9 +10,5 @@ class UserEntity(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
 
-    project_members = relationship(
-    "ProjectMemberEntity",
-    back_populates="user",
-    cascade="all, delete-orphan"
-)
+    
 

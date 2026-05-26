@@ -2,6 +2,7 @@ from app.domain.models.project import Project
 from app.domain.repositories.project_repository import ProjectRepository
 from app.infrastructure.db.entities.project_entity import ProjectEntity
 from sqlalchemy.orm import Session
+from app.infrastructure.db.entities.project_member_entity import ProjectMemberEntity
 
 class SQLAlchemyProjectRepository(ProjectRepository):
     def __init__(self, db: Session):
@@ -32,8 +33,18 @@ class SQLAlchemyProjectRepository(ProjectRepository):
             updated_at=entity.updated_at
         )
 
-    def list_by_owner(self, owner_id: int) -> list[Project]:
-        entities = self.db.query(ProjectEntity).filter_by(owner_id=owner_id).all()
+    def list_by_owner(self, user_id: int) -> list[Project]:
+        entities = (
+            self.db.query(ProjectEntity)
+            .outerjoin(ProjectMemberEntity, ProjectMemberEntity.project_id == ProjectEntity.id)
+            .filter(
+                (ProjectEntity.owner_id == user_id) |
+                (ProjectMemberEntity.user_id == user_id)
+        )
+            .distinct()
+            .all()
+        )
+
         return [
             Project(
                 id=e.id,

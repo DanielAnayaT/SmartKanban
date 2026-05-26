@@ -12,8 +12,8 @@ class BoardService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise ProjectNotFoundError(f"El proyecto con id {project_id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para agregar tableros a este proyecto")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para agregar tableros a este proyecto")
         
         board = Board(id=None, name=name, project_id=project_id)
         return self.board_repo.create(board)
@@ -26,8 +26,8 @@ class BoardService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ProjectNotFoundError(f"El proyecto con id {board.project_id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para acceder a este tablero")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para acceder a este tablero")
 
         return board
 
@@ -35,8 +35,8 @@ class BoardService:
         project = self.project_repo.get_by_id(project_id)
         if not project:
             raise ProjectNotFoundError(f"El proyecto con id {project_id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para ver los tableros de este proyecto")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para ver los tableros de este proyecto")
         return self.board_repo.list_by_project(project_id)
 
     def delete_board(self, board_id: int, current_user_id: int):
@@ -47,8 +47,8 @@ class BoardService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ProjectNotFoundError(f"El proyecto con id {board.project_id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para eliminar este tablero")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para eliminar este tablero")
 
         self.board_repo.delete(board_id)
 
@@ -59,7 +59,7 @@ class BoardService:
         project = self.project_repo.get_by_id(board.project_id)
         if not project:
             raise ProjectNotFoundError(f"El proyecto con id {board.project_id} no existe")
-        if project.owner_id != current_user_id:
-            raise ValueError("No tienes permiso para actualizar este tablero")
+        #if project.owner_id != current_user_id:
+            #raise ValueError("No tienes permiso para actualizar este tablero")
         board.name = name
         return self.board_repo.update(board)
