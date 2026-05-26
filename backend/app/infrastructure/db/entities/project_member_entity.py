@@ -16,5 +16,4 @@ class ProjectMemberEntity(Base):
     project_id = Column(Integer, ForeignKey("projects.id", ondelete="CASCADE"))
     role = Column(Enum(ProjectRole), nullable=False)
 
-    user = relationship("UserEntity", back_populates="project_members")
-    project = relationship("ProjectEntity", back_populates="members")
+    

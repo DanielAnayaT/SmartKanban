@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import json from "json5";
 
 const API_URL = "http://localhost:8000";
 
@@ -117,6 +118,37 @@ const styles = {
     borderRadius: "10px",
     border: "1px solid #e5e7eb",
   } as React.CSSProperties,
+  invitationsContainer: {
+  marginBottom: "30px",
+},
+
+invitationCard: {
+  backgroundColor: "white",
+  padding: "16px",
+  borderRadius: "12px",
+  marginBottom: "12px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+acceptButton: {
+  backgroundColor: "#16a34a",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  padding: "8px 14px",
+  cursor: "pointer",
+},
+
+rejectButton: {
+  backgroundColor: "#dc2626",
+  color: "white",
+  border: "none",
+  borderRadius: "8px",
+  padding: "8px 14px",
+  cursor: "pointer",
+},
 };
 
 const modalStyles = {
@@ -207,6 +239,8 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [invitations, setInvitations] = useState<any[]>([]);
+
   const fetchProjects = async () => {
     try {
       const res = await fetch(`${API_URL}/projects/`, {
@@ -294,112 +328,257 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  const acceptInvitation = async (invitationId: number) => {
+  try {
+    const token = localStorage.getItem("token");
 
-  return (
-    <div style={styles.container}>
-      <nav style={styles.nav}>
-        <div style={styles.navContent}>
-          <Link to="/" style={styles.brand}>
-            <div style={styles.logo}>SK</div>
-            <span style={styles.brandText}>SmartKanban</span>
-          </Link>
-        </div>
-      </nav>
+    await fetch(
+      `http://localhost:8000/invitations/${invitationId}/accept`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      <div style={styles.mainContent}>
-        <div style={styles.headerSection}>
-          <h1 style={styles.welcome}>Your Projects</h1>
-          <p style={styles.subtitle}>
-            Manage and organize all your projects
-          </p>
-        </div>
+    window.location.reload();
 
-        <div style={styles.actionBar}>
-          <span>{projects.length} projects</span>
-          <button
-            style={styles.newProjectButton}
-            onClick={() => setIsModalOpen(true)}
-          >
-            + New Project
-          </button>
-        </div>
-
-        {loading ? (
-          <p>Cargando...</p>
-        ) : projects.length === 0 ? (
-          <div style={styles.emptyState}>
-            <h3>No hay proyectos todavía</h3>
-            <p>Crea tu primer proyecto</p>
-          </div>
-        ) : (
-          <div style={styles.projectsGrid}>
-            {projects.map((p) => (
-              <div key={p.id} style={styles.projectCard} onClick={() => navigate(`/projects/${p.id}`)}>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <h3 style={styles.projectTitle}>{p.name}</h3>
-
-                <div style={{ display: "flex", gap: "8px" }}>
-                  <button onClick={(e) => { e.stopPropagation(); openEditModal(p); }}>✏️</button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteProject(p.id); }}>🗑️</button>
-                </div>
-              </div>
-
-              <p style={styles.projectDescription}>{p.description}</p>
-              </div>
-))}
-          </div>
-        )}
-      </div>
-      {isModalOpen && (
-        <div style={modalStyles.overlay}>
-          <div style={modalStyles.modal}>
-            <h2 style={modalStyles.title}>Create new project</h2>
-
-            <input
-              type="text"
-              placeholder="Project name"
-              value={newProject.name}
-              onChange={(e) =>
-                setNewProject({ ...newProject, name: e.target.value })
-              }
-              style={modalStyles.input}
-            />
-
-            <textarea
-              placeholder="Description (optional)"
-              value={newProject.description}
-              onChange={(e) =>
-                setNewProject({
-                  ...newProject,
-                  description: e.target.value,
-                })
-              }
-              style={modalStyles.textarea}
-            />
-
-            <div style={modalStyles.actions}>
-              <button
-                style={modalStyles.cancel}
-                onClick={() => setIsModalOpen(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                style={modalStyles.create}
-                onClick={createProject}
-              >
-                Create
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  } catch (err) {
+    console.error(err);
+  }
 };
 
+const rejectInvitation = async (invitationId: number) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    await fetch(
+      `http://localhost:8000/invitations/${invitationId}/reject`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setInvitations((prev) =>
+      prev.filter((i) => i.id !== invitationId)
+    );
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const invitationsRes = async () => {
+  const token = localStorage.getItem("token");
+
+  await fetch(
+    "http://localhost:8000/invitations/my",
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+)
+}; 
+
+  useEffect(() => {
+  const loadData = async () => {
+    const token = localStorage.getItem("token");
+
+    // 1. proyectos
+    await fetchProjects();
+
+    // 2. invitaciones
+    const invitationsRes = await fetch(
+      "http://localhost:8000/invitations/my",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const invitationsData = await invitationsRes.json();
+    setInvitations(invitationsData);
+  };
+
+  loadData();
+}, []);
+  return (
+  <div style={styles.container}>
+    <nav style={styles.nav}>
+      <div style={styles.navContent}>
+        <Link to="/" style={styles.brand}>
+          <div style={styles.logo}>SK</div>
+          <span style={styles.brandText}>SmartKanban</span>
+        </Link>
+      </div>
+    </nav>
+
+    <div style={styles.mainContent}>
+      <div style={styles.headerSection}>
+        <h1 style={styles.welcome}>Your Projects</h1>
+        <p style={styles.subtitle}>
+          Manage and organize all your projects
+        </p>
+      </div>
+
+      <div style={styles.actionBar}>
+        <span>{projects.length} projects</span>
+        <button
+          style={styles.newProjectButton}
+          onClick={() => setIsModalOpen(true)}
+        >
+          + New Project
+        </button>
+      </div>
+
+      {/* LOADING / EMPTY / CONTENT */}
+      {loading ? (
+        <p>Cargando...</p>
+      ) : projects.length === 0 ? (
+        <div style={styles.emptyState}>
+          <h3>No hay proyectos todavía</h3>
+          <p>Crea tu primer proyecto</p>
+        </div>
+      ) : (
+        <>
+          {/* INVITATIONS*/}
+          {invitations.length > 0 && (
+            <div style={styles.invitationsContainer}>
+              <h2>Pending Invitations</h2>
+
+              {invitations.map((invitation) => (
+                <div key={invitation.id} style={styles.invitationCard}>
+                  <div style={{ color: "#111", fontWeight: 500 }}>
+                    Project invitation #{invitation.project_id}
+                  </div>
+
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      style={styles.acceptButton}
+                      onClick={() =>
+                        acceptInvitation(invitation.id)
+                      }
+                    >
+                      Accept
+                    </button>
+
+                    <button
+                      style={styles.rejectButton}
+                      onClick={() =>
+                        rejectInvitation(invitation.id)
+                      }
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* PROJECTS GRID */}
+          <div style={styles.projectsGrid}>
+            {projects.map((p) => (
+              <div
+                key={p.id}
+                style={styles.projectCard}
+                onClick={() => navigate(`/projects/${p.id}`)}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <h3 style={styles.projectTitle}>{p.name}</h3>
+
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openEditModal(p);
+                      }}
+                    >
+                      ✏️
+                    </button>
+
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteProject(p.id);
+                      }}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+
+                <p style={styles.projectDescription}>
+                  {p.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+
+    {/* MODAL CREATE */}
+    {isModalOpen && (
+      <div style={modalStyles.overlay}>
+        <div style={modalStyles.modal}>
+          <h2 style={modalStyles.title}>Create new project</h2>
+
+          <input
+            type="text"
+            placeholder="Project name"
+            value={newProject.name}
+            onChange={(e) =>
+              setNewProject({
+                ...newProject,
+                name: e.target.value,
+              })
+            }
+            style={modalStyles.input}
+          />
+
+          <textarea
+            placeholder="Description (optional)"
+            value={newProject.description}
+            onChange={(e) =>
+              setNewProject({
+                ...newProject,
+                description: e.target.value,
+              })
+            }
+            style={modalStyles.textarea}
+          />
+
+          <div style={modalStyles.actions}>
+            <button
+              style={modalStyles.cancel}
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+
+            <button
+              style={modalStyles.create}
+              onClick={createProject}
+            >
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+};
 export default Dashboard;
