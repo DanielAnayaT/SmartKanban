@@ -4,6 +4,7 @@ from app.domain.repositories.list_repository import ListRepository
 from app.core.errors import ValueError, ListNotFoundError, TaskNotFoundError
 from app.domain.repositories.board_repository import BoardRepository
 from app.domain.repositories.project_repository import ProjectRepository
+from app.domain.models import task
 
 class TaskService:
 
@@ -112,3 +113,15 @@ class TaskService:
 
     def reorder_tasks(self, items):
         self.task_repo.reorder_tasks(items)
+
+    def assign_user(self, task_id: int, user_id: int):
+        task = self.task_repo.get_by_id(task_id)
+
+        if not task:
+            raise ValueError("Task not found")
+
+        task.assigned_user_id = user_id
+
+        self.task_repo.save(task)
+
+        return task

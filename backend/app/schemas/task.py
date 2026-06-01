@@ -11,6 +11,8 @@ class TaskOut(BaseModel):
     description: str | None
     list_id: int
     position: int
+    assigned_user_id: int | None = None
+    assigned_username: str | None = None
 
     class Config:
         from_attributes = True

@@ -10,5 +10,10 @@ class TaskORM(Base):
     description = Column(Text, nullable=True)
     list_id = Column(Integer, ForeignKey("lists.id", ondelete="CASCADE"), nullable=False)
     position = Column(Integer, nullable=False, default=0)
+    assigned_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
     list = relationship("ListORM", back_populates="tasks")
+    assigned_user = relationship(
+    "UserEntity",
+    lazy="joined"
+    )

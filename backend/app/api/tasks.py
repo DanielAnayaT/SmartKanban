@@ -76,3 +76,7 @@ def generate_subtasks(task_id: int, task_service: TaskService = Depends(get_task
         "task_id": task_id,
         "subtasks": subtasks
     }
+
+@router.patch("/{task_id}/assign")
+def assign_user_to_task(task_id: int, user_id: int, service: TaskService = Depends(get_task_service)):
+    return service.assign_user(task_id, user_id)

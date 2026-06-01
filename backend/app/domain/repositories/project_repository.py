@@ -22,3 +22,7 @@ class ProjectRepository(ABC):
     @abstractmethod
     def update(self, project: Project) -> Project:
         pass
+
+    @abstractmethod
+    def get_project_members(self, project_id: int) -> list:
+        pass

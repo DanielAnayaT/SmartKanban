@@ -69,3 +69,10 @@ def invite_member(project_id: int, email: str, current_user= Depends(get_current
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"detail": "Invitación enviada"}
+
+@router.get("/{project_id}/members")
+def get_project_members(project_id: int,project_service: ProjectService = Depends(get_project_service)):
+    try:
+        return project_service.get_project_members(project_id)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

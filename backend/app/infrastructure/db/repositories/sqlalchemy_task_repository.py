@@ -16,7 +16,7 @@ class SQLAlchemyTaskRepository(TaskRepository):
             .count()
         )
        
-        orm = TaskORM(title=task.title, description=task.description, list_id=task.list_id, position=existing_count)
+        orm = TaskORM(title=task.title, description=task.description, list_id=task.list_id, position=existing_count, assigned_user_id=task.assigned_user_id)
         self.db.add(orm)
         self.db.commit()
         self.db.refresh(orm)
@@ -28,7 +28,13 @@ class SQLAlchemyTaskRepository(TaskRepository):
             title=orm.title,
             description=orm.description,
             list_id=orm.list_id,
-            position=existing_count
+            position=existing_count,
+            assigned_user_id=orm.assigned_user_id,
+            assigned_username=(
+                orm.assigned_user.username
+                if orm.assigned_user
+                else None
+            )
         )
 
     def get_by_id(self, task_id: int) -> Task | None:
@@ -40,7 +46,13 @@ class SQLAlchemyTaskRepository(TaskRepository):
             title=orm.title,
             description=orm.description,
             list_id=orm.list_id,
-            position=orm.position
+            position=orm.position,
+            assigned_user_id=orm.assigned_user_id,
+            assigned_username=(
+                orm.assigned_user.username
+                if orm.assigned_user
+                else None
+            )
         )
 
     def list_by_list(self, list_id: int) -> list[Task]:
@@ -51,7 +63,13 @@ class SQLAlchemyTaskRepository(TaskRepository):
                 title=o.title,
                 description=o.description,
                 list_id=o.list_id,
-                position=o.position
+                position=o.position,
+                assigned_user_id=o.assigned_user_id,
+                assigned_username=(
+                    o.assigned_user.username
+                    if o.assigned_user
+                    else None
+                )
             )
             for o in orms
         ]
@@ -68,6 +86,7 @@ class SQLAlchemyTaskRepository(TaskRepository):
             return task  
         orm.title = task.title
         orm.description = task.description
+        orm.assigned_user_id = task.assigned_user_id
         self.db.commit()
         return task
 
@@ -85,3 +104,16 @@ class SQLAlchemyTaskRepository(TaskRepository):
                 entity.list_id = item.list_id  
 
         self.db.commit()
+
+    def save(self, task: Task) -> Task:
+        orm = self.db.query(TaskORM).filter(TaskORM.id == task.id).first()
+        
+        orm.title = task.title
+        orm.description = task.description
+        orm.list_id = task.list_id
+        orm.position = task.position
+        orm.assigned_user_id = task.assigned_user_id
+
+        self.db.commit()
+        self.db.refresh(orm)
+        return orm
