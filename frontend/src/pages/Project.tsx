@@ -298,6 +298,8 @@ interface Task {
   title: string;
   description: string;
   listId: number;
+  assigned_user_id?: number;
+  assigned_username?: string;
 }
 
 interface List {
@@ -338,6 +340,8 @@ const Project = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
 
+  const [projectMembers, setProjectMembers] = useState<any[]>([]);
+
   const [board, setBoard] = useState<Board | null>(null);
 
   const API_URL = "http://localhost:8000";
@@ -360,6 +364,19 @@ const Project = () => {
           console.error("Project error:", project);
           return;
         }
+
+        const membersRes = await fetch(
+          `${API_URL}/projects/${projectId}/members`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const membersData = await membersRes.json();
+
+        setProjectMembers(membersData);
 
         // 2. Boards
         const boardRes = await fetch(`${API_URL}/boards/project/${projectId}/`, {
@@ -425,6 +442,8 @@ const Project = () => {
                       title: t.title,
                       description: t.description,
                       listId: list.id,
+                      assigned_user_id: t.assigned_user_id,
+                      assigned_username: t.assigned_username,
                     }))
                   : [],
               };
@@ -573,6 +592,52 @@ const inviteUser = async () => {
       console.error("Error eliminando task", err);
     }
   
+};
+
+const assignUser = async (
+  taskId: number,
+  userId: number
+) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      `${API_URL}/tasks/${taskId}/assign?user_id=${userId}`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const updatedTask = await res.json();
+
+    setBoard((prev: any) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        lists: prev.lists.map((list: any) => ({
+          ...list,
+          tasks: list.tasks.map((task: any) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  assigned_user_id:
+                    updatedTask.assigned_user_id,
+                  assigned_username:
+                    updatedTask.assigned_username,
+                }
+              : task
+          ),
+        })),
+      };
+    });
+
+  } catch (err) {
+    console.error("Error assigning user", err);
+  }
 };
 
   const generateSubtasks = async (
@@ -995,6 +1060,58 @@ const inviteUser = async () => {
         <p style={styles.taskText}>
           {task.title}
         </p>
+
+        {task.assigned_username && (
+      <div
+      style={{
+      marginTop: "6px",
+      fontSize: "12px",
+      fontWeight: "600",
+      color: "#1d4ed8",
+      background: "#dbeafe",
+      padding: "4px 6px",
+      borderRadius: "6px",
+      display: "inline-block",
+    }}
+    >
+      👤 {task.assigned_username}
+    </div>
+  )}
+
+  <div style={{ marginTop: "8px" }}>
+  <select
+    value={task.assigned_user_id ?? ""}
+    onChange={(e) =>
+      assignUser(
+        task.id,
+        e.target.value === "" ? 0 : Number(e.target.value)
+        )
+    }
+    style={{
+      fontSize: "12px",
+      padding: "6px 8px",
+      borderRadius: "6px",
+      border: "1px solid #93c5fd",
+      background: "#ffffff",
+      color: "#111827",
+      width: "100%",
+      outline: "none",
+    }}
+  >
+    <option value="">
+      Unassigned
+    </option>
+
+    {projectMembers.map((member) => (
+      <option
+        key={member.id}
+        value={member.id}
+      >
+        {member.username}
+      </option>
+    ))}
+  </select>
+</div>
 
         {task.description && (
           <div

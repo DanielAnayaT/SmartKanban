@@ -58,3 +58,6 @@ class ProjectService:
         project.name = name
         project.description = description
         return self.project_repo.update(project)
+    
+    def get_project_members(self, project_id: int):
+        return self.project_repo.get_project_members(project_id)
