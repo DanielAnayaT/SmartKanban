@@ -1,73 +1,125 @@
-# React + TypeScript + Vite
+# Frontend Setup and Execution Guide
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This document describes the steps required to set up and run the SmartKanban frontend locally.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Before starting, ensure that the following software is installed on your machine:
 
-## React Compiler
+* Node.js (version 18 or higher recommended)
+* npm (included with Node.js)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+To verify the installation:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+node --version
+npm --version
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 1. Navigate to the Frontend Directory
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Open a terminal and move to the frontend project folder:
+
+```bash
+cd frontend
 ```
+
+
+---
+
+## 2. Install Dependencies
+
+The first time the project is executed, all required dependencies must be installed.
+
+Run:
+
+```bash
+npm install
+```
+
+This command downloads and installs all packages defined in the `package.json` file.
+
+> Note: This step is only required the first time the project is configured or whenever dependencies are updated.
+
+---
+
+## 3. Configure Environment Variables
+
+If the project uses environment variables, create the corresponding configuration file.
+
+For example:
+
+```bash
+cp .env.example .env
+```
+
+Then modify the values according to your local environment.
+
+
+---
+
+## 4. Run the Development Server
+
+Start the frontend development server using:
+
+```bash
+npm run dev
+```
+
+This command launches the Vite development server and automatically recompiles the application whenever source files are modified.
+
+---
+
+## 5. Access the Application
+
+After the server starts successfully, the terminal will display a local URL similar to:
+
+```text
+http://localhost:5173
+```
+
+Open the provided URL in a web browser to access the application.
+
+---
+
+## 6. Backend Dependency
+
+The frontend requires the backend server to be running in order to access application data and authentication services.
+
+Before using the application, ensure that:
+
+* The backend server is running.
+* The database services are active.
+* The API URL configured in the frontend matches the backend address.
+
+---
+
+
+## 7. Stopping the Application
+
+To stop the development server, press:
+
+```bash
+CTRL + C
+```
+
+---
+
+## Full Startup Sequence
+
+For the first execution:
+
+```bash
+npm install
+npm run dev
+```
+
+For subsequent executions:
+
+```bash
+npm run dev
+```
+
+Before starting the frontend, ensure that the backend services are already running.

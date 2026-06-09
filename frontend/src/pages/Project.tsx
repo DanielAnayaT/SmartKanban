@@ -513,7 +513,7 @@ const inviteUser = async () => {
       return;
     }
 
-    alert("Invitation sent!");
+    alert("Invitación enviada!");
 
     setInviteEmail("");
     setShowInviteModal(false);
@@ -971,7 +971,7 @@ const assignUser = async (
           </Link>
           <div style={styles.navActions}>
             <Link to="/dashboard" style={{ ...styles.backButton, textDecoration: "none", color: "inherit" }}>
-              ← Back to Dashboard
+              ← Devuelta al Dashboard
             </Link>
           </div>
         </div>
@@ -993,7 +993,7 @@ const assignUser = async (
     style={styles.inviteButton}
     onClick={() => setShowInviteModal(true)}
   >
-    Invite User
+    Invitar Usuario
   </button>
 </div>
         </div>
@@ -1178,7 +1178,7 @@ const assignUser = async (
                   }}
                   onClick={() => setShowTaskModal(list.id)}
                 >
-                  + Add Task
+                  + Añadir Tarea
                 </button>
               </div>
             </div>
@@ -1197,7 +1197,7 @@ const assignUser = async (
             }}
             onClick={() => setShowListModal(true)}
           >
-            + Add List
+            + Añadir Lista
           </button>
         </div>
       </div>
@@ -1311,7 +1311,7 @@ const assignUser = async (
       onClick={(e) => e.stopPropagation()}
     >
       <h2 style={styles.modalTitle}>
-        AI Generated Subtasks
+        Subtareas Generadas por IA
       </h2>
 
       {loadingAi ? (
@@ -1358,14 +1358,14 @@ const assignUser = async (
           style={styles.secondaryButton}
           onClick={() => setShowAiModal(false)}
         >
-          Close
+          Cerrar
         </button>
 
         <button
           style={styles.primaryButton}
           onClick={createAiSubtasks}
         >
-          Add All
+          Añadir Todo
         </button>
       </div>
     </div>
@@ -1382,7 +1382,7 @@ const assignUser = async (
       onClick={(e) => e.stopPropagation()}
     >
       <h2 style={styles.modalTitle}>
-        Invite User
+        Invitar Usuario
       </h2>
 
       <input
@@ -1398,7 +1398,7 @@ const assignUser = async (
           style={styles.secondaryButton}
           onClick={() => setShowInviteModal(false)}
         >
-          Cancel
+          Cancelar
         </button>
 
         <button
@@ -1406,7 +1406,7 @@ const assignUser = async (
           onClick={inviteUser}
           disabled={inviteLoading}
         >
-          {inviteLoading ? "Sending..." : "Send Invite"}
+          {inviteLoading ? "Sending..." : "Enviar Invitación"}
         </button>
       </div>
     </div>

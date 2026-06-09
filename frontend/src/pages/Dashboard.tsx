@@ -421,19 +421,19 @@ const invitationsRes = async () => {
 
     <div style={styles.mainContent}>
       <div style={styles.headerSection}>
-        <h1 style={styles.welcome}>Your Projects</h1>
+        <h1 style={styles.welcome}>Tus Proyectos</h1>
         <p style={styles.subtitle}>
-          Manage and organize all your projects
+          Maneja y organiza tus proyectos 
         </p>
       </div>
 
       <div style={styles.actionBar}>
-        <span>{projects.length} projects</span>
+        <span>{projects.length} proyectos</span>
         <button
           style={styles.newProjectButton}
           onClick={() => setIsModalOpen(true)}
         >
-          + New Project
+          + Nuevo Proyecto
         </button>
       </div>
 
@@ -450,12 +450,12 @@ const invitationsRes = async () => {
           {/* INVITATIONS*/}
           {invitations.length > 0 && (
             <div style={styles.invitationsContainer}>
-              <h2>Pending Invitations</h2>
+              <h2>Invitaciones Pendientes</h2>
 
               {invitations.map((invitation) => (
                 <div key={invitation.id} style={styles.invitationCard}>
                   <div style={{ color: "#111", fontWeight: 500 }}>
-                    Project invitation #{invitation.project_id}
+                    Invitación al Proyecto #{invitation.project_id}
                   </div>
 
                   <div style={{ display: "flex", gap: "10px" }}>

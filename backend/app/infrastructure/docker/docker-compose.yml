@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: pg_smartkanban
+    environment:
+      POSTGRES_USER: tu_usuario
+      POSTGRES_PASSWORD: tu_contraseña
+      POSTGRES_DB: smartkanban_db
+    ports:
+      - "5432:5432"
