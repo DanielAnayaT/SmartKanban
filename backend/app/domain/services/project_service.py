@@ -43,8 +43,8 @@ class ProjectService:
         if not project:
             raise ProjectNotFoundError(f"Proyecto con id {project_id} no existe")
         
-        #if project.owner_id != current_user_id:
-            #raise ValueError("No tienes permiso para eliminar este proyecto")
+        if project.owner_id != current_user_id:
+            raise ValueError("No tienes permiso para eliminar este proyecto")
         
         self.project_repo.delete(project_id)
 
